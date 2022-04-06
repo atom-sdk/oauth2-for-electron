@@ -76,6 +76,8 @@ module.exports = function(config)
 		{
 			if(url.startsWith(redirect_uri))
 			{
+				
+				event.preventDefault();
 				const params = urlParams(url);
 				if(params.hasOwnProperty('code'))
 				{
