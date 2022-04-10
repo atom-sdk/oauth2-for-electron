@@ -72,12 +72,11 @@ module.exports = function(config)
 			authorize_url += `&state=${state}`;
 		}
 
-		win.webContents.on('will-redirect', async (event, url, httpResponseCode, statusText) => 
+		win.webContents.on('did-navigate', async (event, url, httpResponseCode, statusText) => 
 		{
-			if(url.startsWith(redirect_uri))
+
+			if(url.replace("www.", "").startsWith(redirect_uri))
 			{
-				
-				event.preventDefault();
 				const params = urlParams(url);
 				if(params.hasOwnProperty('code'))
 				{
