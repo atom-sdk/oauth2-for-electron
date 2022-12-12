@@ -80,10 +80,10 @@ module.exports = function(config)
 			authorize_url += `&code_challenge_method=S256`;
 		}
 
-		win.webContents.on('did-navigate', async (event, url, httpResponseCode, statusText) => 
+		win.webContents.on('will-redirect', async (event, url, httpResponseCode, statusText) => 
 		{
 
-			if(url.replace("www.", "").startsWith(redirect_uri))
+			if(url.startsWith(redirect_uri))
 			{
 				const params = urlParams(url);
 				if(params.hasOwnProperty('code'))
