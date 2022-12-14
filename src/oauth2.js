@@ -10,6 +10,8 @@ module.exports = function(config)
 	const client_secret = config.client_secret;
 	const redirect_uri = config.redirect_uri;
 	const state = config.state;
+	const code_challenge = config.code_challenge;
+	const code_verifier = config.code_verifier;
 	
 	// Set scope deliminator.
 	let scope_deliminator = " ";
@@ -25,7 +27,8 @@ module.exports = function(config)
         	...grant,
         	redirect_uri,
 			client_id,
-        	client_secret
+        	client_secret,
+			code_verifier,
         };
 
     	const request_config = {
@@ -71,11 +74,16 @@ module.exports = function(config)
 		{
 			authorize_url += `&state=${state}`;
 		}
+		if (code_challenge) 
+		{
+			authorize_url += `&code_challenge=${encodeURIComponent(code_challenge)}`;
+			authorize_url += `&code_challenge_method=S256`;
+		}
 
-		win.webContents.on('did-navigate', async (event, url, httpResponseCode, statusText) => 
+		win.webContents.on('will-redirect', async (event, url, httpResponseCode, statusText) => 
 		{
 
-			if(url.replace("www.", "").startsWith(redirect_uri))
+			if(url.startsWith(redirect_uri))
 			{
 				const params = urlParams(url);
 				if(params.hasOwnProperty('code'))
