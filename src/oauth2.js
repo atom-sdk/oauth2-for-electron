@@ -12,7 +12,8 @@ module.exports = function(config)
 	const state = config.state;
 	const code_challenge = config.code_challenge;
 	const code_verifier = config.code_verifier;
-	
+	const auth_query_params = config.auth_query_params;
+
 	// Set scope deliminator.
 	let scope_deliminator = " ";
 	if(config.scope_deliminator)
@@ -70,6 +71,13 @@ module.exports = function(config)
 		authorize_url += `&client_id=${client_id}`;
 		authorize_url += `&scope=${encodeURIComponent(scope)}`;
 		authorize_url += `&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+		if (auth_query_params)
+		{
+			for (const param in auth_query_params) 
+			{
+				authorize_url += `&${param}=${auth_query_params[param]}`
+			}
+		}
 		if(state)
 		{
 			authorize_url += `&state=${state}`;
