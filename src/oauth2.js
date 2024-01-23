@@ -1,25 +1,29 @@
 'use strict';
-const { urlParams } = require('./utils');
+const {urlParams} = require('./utils');
 const request = require('./request');
 
-module.exports = function (config) {
+module.exports = function(config)
+{
 	const auth_url = config.auth_url;
 	const token_url = config.token_url;
-	var client_id = config.client_id;
+	const client_id = config.client_id;
 	const client_secret = config.client_secret;
-	var redirect_uri = config.redirect_uri;
+	const redirect_uri = config.redirect_uri;
 	const state = config.state;
 	const code_challenge = config.code_challenge;
 	const code_verifier = config.code_verifier;
+	const auth_query_params = config.auth_query_params;
 
 	// Set scope deliminator.
 	let scope_deliminator = " ";
-	if (config.scope_deliminator) {
+	if(config.scope_deliminator)
+	{
 		scope_deliminator = config.scope_deliminator;
 	}
 	const scope = config.scope.join(scope_deliminator);
 
-	const getToken = async (grant) => {
+	const getToken = async (grant) =>
+	{
 		const redirectUri = grant.app_id ? `${redirect_uri}?app_id=${grant.app_id}` : redirect_uri;
 		const clientId = grant.app_id || client_id;
 
@@ -32,7 +36,7 @@ module.exports = function (config) {
 			code_verifier,
 		};
 
-		const request_config = {
+    	const request_config = {
 			url: token_url,
 			method: "POST",
 			headers: {
@@ -42,23 +46,28 @@ module.exports = function (config) {
 			json: true
 		};
 
-		try {
-			const data = await request(request_config);
-			if (data.hasOwnProperty('access_token')) {
+        try
+        {
+        	const data = await request(request_config);
+        	if(data.hasOwnProperty('access_token'))
+			{
 				return data;
 			}
-			else {
+			else
+			{
 				let err = new Error('FAILED_TO_REFRESH_TOKEN');
 				err.response = data;
 				throw err;
 			}
-		}
-		catch (err) {
-			throw err;
-		}
+        }
+        catch(err)
+        {
+        	throw err;
+        }
 	}
 
-	this.begin = (win, callback) => {
+	this.begin = (win, callback) => 
+	{
 		// Remove menu from the BrowserWindow.
 		win.setMenu(null);
 
@@ -66,36 +75,51 @@ module.exports = function (config) {
 		authorize_url += `&client_id=${client_id}`;
 		authorize_url += `&scope=${encodeURIComponent(scope)}`;
 		authorize_url += `&redirect_uri=${encodeURIComponent(redirect_uri)}`;
-		if (state) {
+		if (auth_query_params)
+		{
+			for (const param in auth_query_params) 
+			{
+				authorize_url += `&${param}=${auth_query_params[param]}`
+			}
+		}
+		if(state)
+		{
 			authorize_url += `&state=${state}`;
 		}
-		if (code_challenge) {
+		if (code_challenge) 
+		{
 			authorize_url += `&code_challenge=${encodeURIComponent(code_challenge)}`;
 			authorize_url += `&code_challenge_method=S256`;
 		}
 
-		win.webContents.on('will-redirect', async (event, url, httpResponseCode, statusText) => {
-			if (url.startsWith(redirect_uri)) {
+		win.webContents.on('will-redirect', async (event, url, httpResponseCode, statusText) => 
+		{
+
+			if(url.startsWith(redirect_uri))
+			{
 				const params = urlParams(url);
-				if (params.hasOwnProperty('code')) {
-					try {
+				if(params.hasOwnProperty('code'))
+				{
+					try
+					{
 						const grant = {
 							grant_type: "authorization_code",
-							code: params.code,
+        					code: params.code,
 							app_id: params.app_id
 						};
 
 						const data = await getToken(grant);
-						debugger;
 						callback(null, data);
 					}
-					catch (err) {
+					catch(err)
+					{
 						callback(err, null);
 					}
 
 					win.close();
 				}
-				else {
+				else
+				{
 					const error = new Error('AUTH_FAILED');
 					error.response = params;
 					callback(error, null);
@@ -106,17 +130,20 @@ module.exports = function (config) {
 		win.loadURL(authorize_url);
 	}
 
-	this.refreshToken = async (refresh_token) => {
+	this.refreshToken = async (refresh_token) => 
+	{
 		const grant = {
-			grant_type: "refresh_token",
-			refresh_token
-		};
+        	grant_type: "refresh_token",
+        	refresh_token
+        };
 
-		try {
+        try
+		{
 			const data = await getToken(grant);
 			return data;
 		}
-		catch (err) {
+		catch(err)
+		{
 			throw err;
 		}
 	}
