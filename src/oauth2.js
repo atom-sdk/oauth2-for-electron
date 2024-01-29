@@ -24,13 +24,17 @@ module.exports = function(config)
 
 	const getToken = async (grant) =>
 	{
+		const redirectUri = grant.app_id ? `${redirect_uri}?app_id=${grant.app_id}` : redirect_uri;
+		const clientId = grant.app_id || client_id;
+
 		const params = {
-        	...grant,
-        	redirect_uri,
-			client_id,
-        	client_secret,
+			grant_type: grant.grant_type,
+			code: grant.code,
+			redirect_uri: redirectUri,
+			client_id: clientId,
+			client_secret,
 			code_verifier,
-        };
+		};
 
     	const request_config = {
 			url: token_url,
@@ -100,7 +104,8 @@ module.exports = function(config)
 					{
 						const grant = {
 							grant_type: "authorization_code",
-        					code: params.code
+        					code: params.code,
+							app_id: params.app_id
 						};
 
 						const data = await getToken(grant);
