@@ -26,10 +26,10 @@ module.exports = function(config)
 	{
 		const redirectUri = grant.app_id ? `${redirect_uri}?app_id=${grant.app_id}` : redirect_uri;
 		const clientId = grant.app_id || client_id;
-
+		delete grant.app_id
+		
 		const params = {
-			grant_type: grant.grant_type,
-			code: grant.code,
+			...grant,
 			redirect_uri: redirectUri,
 			client_id: clientId,
 			client_secret,
