@@ -106,7 +106,8 @@ module.exports = function(config)
 						const grant = {
 							grant_type: "authorization_code",
         					code: params.code,
-							app_id: params.app_id
+							app_id: params.app_id,
+							workspace: params.workspace
 						};
 
 						const data = await getToken(grant);
