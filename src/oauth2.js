@@ -24,9 +24,10 @@ module.exports = function(config)
 
 	const getToken = async (grant) =>
 	{
-		const redirectUri = grant.app_id ? `${redirect_uri}?app_id=${grant.app_id}` : redirect_uri;
+		const redirectUri = grant.app_id && grant.workspace ? `${redirect_uri}?app_id=${grant.app_id}&workspace=${grant.workspace}` : grant.app_id ? `${redirect_uri}?app_id=${grant.app_id}` : redirect_uri;
 		const clientId = grant.app_id || client_id;
 		delete grant.app_id
+		delete grant.workspace
 		
 		const params = {
 			...grant,
@@ -105,10 +106,19 @@ module.exports = function(config)
 						const grant = {
 							grant_type: "authorization_code",
         					code: params.code,
-							app_id: params.app_id
+							app_id: params.app_id,
+							workspace: params.workspace
 						};
 
 						const data = await getToken(grant);
+						data.additional_params = {}
+						if (params.workspace) {
+							data.additional_params.workspace = params.workspace
+						}
+
+						if (params.app_id) {
+							data.additional_params.client_id = params.app_id
+						}
 						callback(null, data);
 					}
 					catch(err)
