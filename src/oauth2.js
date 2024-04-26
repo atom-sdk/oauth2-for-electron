@@ -111,10 +111,18 @@ module.exports = function(config)
 						};
 
 						const data = await getToken(grant);
-						if (params.workspace !== undefined || params.workspace !== null) {
+						if (params.workspace !== undefined && params.workspace !== null) {
 							data.additional_params = {
+								...data.additional_params,
 								workspace: params.workspace
-							}
+							};
+						}
+
+						if (params.app_id !== undefined && params.app_id !== null) {
+							data.additional_params = {
+								...data.additional_params,
+								client_id: params.app_id
+							};
 						}
 						callback(null, data);
 					}
