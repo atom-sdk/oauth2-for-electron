@@ -111,18 +111,13 @@ module.exports = function(config)
 						};
 
 						const data = await getToken(grant);
+						data.additional_params = {}
 						if (params.workspace) {
-							data.additional_params = {
-								...data.additional_params,
-								workspace: params.workspace
-							};
+							data.additional_params.workspace = params.workspace
 						}
 
 						if (params.app_id) {
-							data.additional_params = {
-								...data.additional_params,
-								client_id: params.app_id
-							};
+							data.additional_params.client_id = params.app_id
 						}
 						callback(null, data);
 					}
